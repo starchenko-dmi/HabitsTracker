@@ -33,8 +33,8 @@ urlpatterns = [
     # Привычки
     path('api/habits/', include('habits.urls')),
 
-    # Telegram бот
-    path('api/telegram/', include('telegram_bot.urls')),
+    # # Telegram бот
+    # path('api/telegram/', include('telegram_bot.urls')),
 
     # Документация API
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
