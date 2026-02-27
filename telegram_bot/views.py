@@ -1,11 +1,14 @@
+import json
+import logging
+
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.conf import settings
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes
-import json
-import logging
+
+from telegram_bot.bot import get_bot
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +43,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def habits_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /habits"""
-    from users.models import User
     from habits.models import Habit
+    from users.models import User
 
     user = update.effective_user
 
@@ -69,19 +72,15 @@ async def habits_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
             message = "У тебя пока нет привычек. Добавь их через веб-приложение!"
 
     except User.DoesNotExist:
-        message = (
-            "⚠️ Твой аккаунт не привязан к боту.\n"
-            f"Сообщи администратору свой ID чата: <code>{user.id}</code>"
-        )
+        message = "⚠️ Твой аккаунт не привязан к боту.\n" f"Сообщи администратору свой ID чата: <code>{user.id}</code>"
 
     await update.message.reply_html(message)
 
 
 async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработчик команды /stats"""
-    from users.models import User
     from habits.models import Habit
-    from django.db.models import Count
+    from users.models import User
 
     user = update.effective_user
 
@@ -101,10 +100,7 @@ async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_html(message)
 
     except User.DoesNotExist:
-        message = (
-            "⚠️ Твой аккаунт не привязан к боту.\n"
-            f"Сообщи администратору свой ID чата: <code>{user.id}</code>"
-        )
+        message = "⚠️ Твой аккаунт не привязан к боту.\n" f"Сообщи администратору свой ID чата: <code>{user.id}</code>"
         await update.message.reply_html(message)
 
 
@@ -123,6 +119,7 @@ def telegram_webhook(request):
 
         # Регистрация обработчиков команд
         from telegram.ext import CommandHandler
+
         application.add_handler(CommandHandler("start", start_command))
         application.add_handler(CommandHandler("help", help_command))
         application.add_handler(CommandHandler("habits", habits_command))
@@ -134,18 +131,18 @@ def telegram_webhook(request):
 
     try:
         # Получаем данные из запроса
-        json_data = json.loads(request.body.decode('utf-8'))
+        json_data = json.loads(request.body.decode("utf-8"))
         logger.info(f"Получено обновление от Telegram: {json_data}")
 
         # Создаем объект Update и обрабатываем его
         update = Update.de_json(json_data, application.bot)
         application.update_queue.put_nowait(update)
 
-        return JsonResponse({'status': 'ok'})
+        return JsonResponse({"status": "ok"})
 
     except Exception as e:
         logger.error(f"Ошибка обработки вебхука: {e}")
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
 @require_http_methods(["GET"])
@@ -156,7 +153,7 @@ def set_webhook(request):
     """
     bot = get_bot()
     if not bot:
-        return JsonResponse({'status': 'error', 'message': 'Bot token not configured'})
+        return JsonResponse({"status": "error", "message": "Bot token not configured"})
 
     try:
         # URL вебхука (должен быть публичным)
@@ -165,15 +162,11 @@ def set_webhook(request):
         bot.set_webhook(url=webhook_url)
         logger.info(f"Вебхук установлен: {webhook_url}")
 
-        return JsonResponse({
-            'status': 'ok',
-            'webhook_url': webhook_url,
-            'bot_name': settings.TELEGRAM_BOT_NAME
-        })
+        return JsonResponse({"status": "ok", "webhook_url": webhook_url, "bot_name": settings.TELEGRAM_BOT_NAME})
 
     except Exception as e:
         logger.error(f"Ошибка установки вебхука: {e}")
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)
 
 
 @require_http_methods(["GET"])
@@ -183,14 +176,14 @@ def delete_webhook(request):
     """
     bot = get_bot()
     if not bot:
-        return JsonResponse({'status': 'error', 'message': 'Bot token not configured'})
+        return JsonResponse({"status": "error", "message": "Bot token not configured"})
 
     try:
         bot.delete_webhook()
         logger.info("Вебхук удален")
 
-        return JsonResponse({'status': 'ok', 'message': 'Webhook deleted'})
+        return JsonResponse({"status": "ok", "message": "Webhook deleted"})
 
     except Exception as e:
         logger.error(f"Ошибка удаления вебхука: {e}")
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        return JsonResponse({"status": "error", "message": str(e)}, status=500)

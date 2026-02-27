@@ -1,7 +1,7 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions
+from rest_framework import permissions, viewsets
+
 from .models import User
-from .serializers import UserSerializer, UserCreateSerializer
+from .serializers import UserCreateSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -12,7 +12,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action == "create":
             return UserCreateSerializer
         return UserSerializer
 

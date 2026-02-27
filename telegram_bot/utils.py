@@ -1,7 +1,7 @@
-# telegram_bot/utils.py
+import logging
+
 from django.conf import settings
 from telegram import Bot
-import logging
 
 logger = logging.getLogger(__name__)
 

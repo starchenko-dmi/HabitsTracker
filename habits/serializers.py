@@ -1,36 +1,37 @@
 from rest_framework import serializers
-from django.utils.translation import gettext_lazy as _
-from .models import Habit
+
 from core.validators import HabitValidator
+
+from .models import Habit
 
 
 class HabitSerializer(serializers.ModelSerializer):
     """Основной сериализатор для привычек"""
 
     # Поля только для чтения
-    user = serializers.ReadOnlyField(source='user.email')
+    user = serializers.ReadOnlyField(source="user.email")
     is_useful = serializers.SerializerMethodField()
 
     class Meta:
         model = Habit
         fields = [
-            'id',
-            'user',
-            'place',
-            'time',
-            'action',
-            'is_pleasant',
-            'related_habit',
-            'periodicity',
-            'reward',
-            'duration',
-            'is_public',
-            'created_at',
-            'last_completed',
-            'next_reminder',
-            'is_useful'
+            "id",
+            "user",
+            "place",
+            "time",
+            "action",
+            "is_pleasant",
+            "related_habit",
+            "periodicity",
+            "reward",
+            "duration",
+            "is_public",
+            "created_at",
+            "last_completed",
+            "next_reminder",
+            "is_useful",
         ]
-        read_only_fields = ['id', 'user', 'created_at', 'is_useful']
+        read_only_fields = ["id", "user", "created_at", "is_useful"]
 
     def get_is_useful(self, obj):
         """Получение признака полезной привычки"""
@@ -49,29 +50,29 @@ class HabitSerializer(serializers.ModelSerializer):
             # Для обновления копируем существующий объект
             temp_habit = Habit(
                 user=instance.user,
-                place=data.get('place', instance.place),
-                time=data.get('time', instance.time),
-                action=data.get('action', instance.action),
-                is_pleasant=data.get('is_pleasant', instance.is_pleasant),
-                related_habit=data.get('related_habit', instance.related_habit),
-                periodicity=data.get('periodicity', instance.periodicity),
-                reward=data.get('reward', instance.reward),
-                duration=data.get('duration', instance.duration),
-                is_public=data.get('is_public', instance.is_public),
+                place=data.get("place", instance.place),
+                time=data.get("time", instance.time),
+                action=data.get("action", instance.action),
+                is_pleasant=data.get("is_pleasant", instance.is_pleasant),
+                related_habit=data.get("related_habit", instance.related_habit),
+                periodicity=data.get("periodicity", instance.periodicity),
+                reward=data.get("reward", instance.reward),
+                duration=data.get("duration", instance.duration),
+                is_public=data.get("is_public", instance.is_public),
             )
         else:
             # Для создания нового объекта
             temp_habit = Habit(
-                user=self.context['request'].user,
-                place=data.get('place'),
-                time=data.get('time'),
-                action=data.get('action'),
-                is_pleasant=data.get('is_pleasant', False),
-                related_habit=data.get('related_habit'),
-                periodicity=data.get('periodicity', 1),
-                reward=data.get('reward'),
-                duration=data.get('duration'),
-                is_public=data.get('is_public', False),
+                user=self.context["request"].user,
+                place=data.get("place"),
+                time=data.get("time"),
+                action=data.get("action"),
+                is_pleasant=data.get("is_pleasant", False),
+                related_habit=data.get("related_habit"),
+                periodicity=data.get("periodicity", 1),
+                reward=data.get("reward"),
+                duration=data.get("duration"),
+                is_public=data.get("is_public", False),
             )
 
         # Применяем валидатор
@@ -87,7 +88,7 @@ class HabitSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Создание привычки с автоматическим присвоением пользователя"""
-        validated_data['user'] = self.context['request'].user
+        validated_data["user"] = self.context["request"].user
         return super().create(validated_data)
 
 
@@ -95,28 +96,18 @@ class HabitCreateUpdateSerializer(HabitSerializer):
     """Сериализатор для создания и обновления привычек"""
 
     class Meta(HabitSerializer.Meta):
-        read_only_fields = ['id', 'created_at', 'user', 'is_useful', 'last_completed', 'next_reminder']
+        read_only_fields = ["id", "created_at", "user", "is_useful", "last_completed", "next_reminder"]
 
 
 class PublicHabitSerializer(serializers.ModelSerializer):
     """Сериализатор для публичных привычек (без чувствительных данных)"""
 
-    user = serializers.ReadOnlyField(source='user.username')
+    user = serializers.ReadOnlyField(source="user.username")
 
     class Meta:
         model = Habit
-        fields = [
-            'id',
-            'user',
-            'place',
-            'time',
-            'action',
-            'is_pleasant',
-            'periodicity',
-            'duration',
-            'created_at'
-        ]
-        read_only_fields = ['id', 'user', 'created_at']
+        fields = ["id", "user", "place", "time", "action", "is_pleasant", "periodicity", "duration", "created_at"]
+        read_only_fields = ["id", "user", "created_at"]
 
 
 class RelatedHabitSerializer(serializers.ModelSerializer):
@@ -124,5 +115,5 @@ class RelatedHabitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Habit
-        fields = ['id', 'action', 'is_pleasant', 'duration']
-        read_only_fields = ['id', 'action', 'is_pleasant', 'duration']
+        fields = ["id", "action", "is_pleasant", "duration"]
+        read_only_fields = ["id", "action", "is_pleasant", "duration"]

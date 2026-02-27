@@ -1,6 +1,7 @@
-from telegram import Bot
-from django.conf import settings
 import logging
+
+from django.conf import settings
+from telegram import Bot
 
 logger = logging.getLogger(__name__)
 
@@ -29,11 +30,7 @@ def send_message(chat_id, text):
         return False
 
     try:
-        bot.send_message(
-            chat_id=chat_id,
-            text=text,
-            parse_mode='HTML'
-        )
+        bot.send_message(chat_id=chat_id, text=text, parse_mode="HTML")
         logger.info(f"Сообщение отправлено пользователю {chat_id}")
         return True
     except Exception as e:

@@ -1,13 +1,11 @@
-# telegram_bot/tasks.py
-from celery import shared_task
-from django.conf import settings
-from django.utils import timezone
-from datetime import timedelta
 import logging
+from datetime import timedelta
 
-from telegram_bot.bot import send_message
+from celery import shared_task
+from django.utils import timezone
+
 from habits.models import Habit
-from users.models import User
+from telegram_bot.bot import send_message
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +27,8 @@ def send_habit_reminders():
     # Получаем все привычки, которые нужно выполнить сегодня
     habits_to_remind = Habit.objects.filter(
         is_public=False,  # Только личные привычки
-        user__telegram_chat_id__isnull=False  # Только у пользователей с привязанным Telegram
-    ).select_related('user')
+        user__telegram_chat_id__isnull=False,  # Только у пользователей с привязанным Telegram
+    ).select_related("user")
 
     sent_count = 0
     failed_count = 0
@@ -51,9 +49,7 @@ def send_habit_reminders():
         # Проверяем время (напоминаем за 15 минут до времени привычки)
         if should_remind:
             habit_time = habit.time
-            reminder_time_start = (
-                    timezone.datetime.combine(now.date(), habit_time) - timedelta(minutes=15)
-            ).time()
+            reminder_time_start = (timezone.datetime.combine(now.date(), habit_time) - timedelta(minutes=15)).time()
             reminder_time_end = habit_time
 
             # Проверяем, попадает ли текущее время в интервал напоминания
@@ -81,7 +77,7 @@ def send_habit_reminders():
                     logger.error(f"Не удалось отправить напоминание пользователю {habit.user.id}")
 
     logger.info(f"Задача завершена: отправлено {sent_count}, не удалось {failed_count}")
-    return {'sent': sent_count, 'failed': failed_count}
+    return {"sent": sent_count, "failed": failed_count}
 
 
 @shared_task
@@ -96,17 +92,16 @@ def check_inactive_habits():
     seven_days_ago = timezone.now().date() - timedelta(days=7)
 
     inactive_habits = Habit.objects.filter(
-        last_completed__lt=seven_days_ago,
-        user__telegram_chat_id__isnull=False
-    ).select_related('user')
+        last_completed__lt=seven_days_ago, user__telegram_chat_id__isnull=False
+    ).select_related("user")
 
     for habit in inactive_habits:
         message = (
             f"⚠️ <b>Внимание!</b>\n\n"
-            f"Ты не выполнял привычку <b>\"{habit.action}\"</b> уже более 7 дней.\n"
+            f'Ты не выполнял привычку <b>"{habit.action}"</b> уже более 7 дней.\n'
             f"Не забывай о своих целях! 💪"
         )
         send_message(habit.user.telegram_chat_id, message)
 
     logger.info(f"Проверено {inactive_habits.count()} неактивных привычек")
-    return {'checked': inactive_habits.count()}
+    return {"checked": inactive_habits.count()}

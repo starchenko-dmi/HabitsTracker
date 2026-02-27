@@ -10,14 +10,20 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('habits', '0001_initial'),
+        ("habits", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='habit',
-            name='user',
-            field=models.ForeignKey(help_text='Создатель привычки', on_delete=django.db.models.deletion.CASCADE, related_name='habits', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь'),
+            model_name="habit",
+            name="user",
+            field=models.ForeignKey(
+                help_text="Создатель привычки",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="habits",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Пользователь",
+            ),
         ),
     ]

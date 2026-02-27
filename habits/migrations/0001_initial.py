@@ -9,31 +9,102 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Habit',
+            name="Habit",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('place', models.CharField(help_text='Место, в котором необходимо выполнять привычку', max_length=255, verbose_name='Место')),
-                ('time', models.TimeField(help_text='Время, когда необходимо выполнять привычку', verbose_name='Время')),
-                ('action', models.CharField(help_text='Действие, которое представляет собой привычка', max_length=255, verbose_name='Действие')),
-                ('is_pleasant', models.BooleanField(default=False, help_text='Привычка, которую можно привязать к выполнению полезной привычки', verbose_name='Признак приятной привычки')),
-                ('periodicity', models.PositiveSmallIntegerField(default=1, help_text='Периодичность выполнения привычки в днях (от 1 до 7)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(7)], verbose_name='Периодичность')),
-                ('reward', models.CharField(blank=True, help_text='Чем пользователь должен себя вознаградить после выполнения', max_length=255, null=True, verbose_name='Вознаграждение')),
-                ('duration', models.PositiveSmallIntegerField(help_text='Время на выполнение привычки в секундах (не более 120)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(120)], verbose_name='Время на выполнение')),
-                ('is_public', models.BooleanField(default=False, help_text='Привычка доступна для просмотра другими пользователями', verbose_name='Признак публичности')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
-                ('last_completed', models.DateField(blank=True, null=True, verbose_name='Дата последнего выполнения')),
-                ('next_reminder', models.DateTimeField(blank=True, null=True, verbose_name='Следующее напоминание')),
-                ('related_habit', models.ForeignKey(blank=True, help_text='Привычка, которая связана с другой привычкой (только для полезных привычек)', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='linked_habits', to='habits.habit', verbose_name='Связанная привычка')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "place",
+                    models.CharField(
+                        help_text="Место, в котором необходимо выполнять привычку",
+                        max_length=255,
+                        verbose_name="Место",
+                    ),
+                ),
+                (
+                    "time",
+                    models.TimeField(help_text="Время, когда необходимо выполнять привычку", verbose_name="Время"),
+                ),
+                (
+                    "action",
+                    models.CharField(
+                        help_text="Действие, которое представляет собой привычка",
+                        max_length=255,
+                        verbose_name="Действие",
+                    ),
+                ),
+                (
+                    "is_pleasant",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Привычка, которую можно привязать к выполнению полезной привычки",
+                        verbose_name="Признак приятной привычки",
+                    ),
+                ),
+                (
+                    "periodicity",
+                    models.PositiveSmallIntegerField(
+                        default=1,
+                        help_text="Периодичность выполнения привычки в днях (от 1 до 7)",
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(7),
+                        ],
+                        verbose_name="Периодичность",
+                    ),
+                ),
+                (
+                    "reward",
+                    models.CharField(
+                        blank=True,
+                        help_text="Чем пользователь должен себя вознаградить после выполнения",
+                        max_length=255,
+                        null=True,
+                        verbose_name="Вознаграждение",
+                    ),
+                ),
+                (
+                    "duration",
+                    models.PositiveSmallIntegerField(
+                        help_text="Время на выполнение привычки в секундах (не более 120)",
+                        validators=[
+                            django.core.validators.MinValueValidator(1),
+                            django.core.validators.MaxValueValidator(120),
+                        ],
+                        verbose_name="Время на выполнение",
+                    ),
+                ),
+                (
+                    "is_public",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Привычка доступна для просмотра другими пользователями",
+                        verbose_name="Признак публичности",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")),
+                ("last_completed", models.DateField(blank=True, null=True, verbose_name="Дата последнего выполнения")),
+                ("next_reminder", models.DateTimeField(blank=True, null=True, verbose_name="Следующее напоминание")),
+                (
+                    "related_habit",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="Привычка, которая связана с другой привычкой (только для полезных привычек)",
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="linked_habits",
+                        to="habits.habit",
+                        verbose_name="Связанная привычка",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Привычка',
-                'verbose_name_plural': 'Привычки',
-                'ordering': ['time', 'created_at'],
+                "verbose_name": "Привычка",
+                "verbose_name_plural": "Привычки",
+                "ordering": ["time", "created_at"],
             },
         ),
     ]

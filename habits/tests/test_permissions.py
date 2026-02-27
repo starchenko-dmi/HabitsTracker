@@ -11,7 +11,7 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
     message = _("У вас нет прав на изменение этой привычки.")
 
     def has_object_permission(self, request, view, obj):
-        # Разрешаем чтение всем (для публичных привычек)
+        # Разрешаем чтение всем для безопасных методов
         if request.method in permissions.SAFE_METHODS:
             return True
 
