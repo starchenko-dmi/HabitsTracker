@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes
 
-from telegram_bot.bot import get_bot
+from telegram_bot.utils import get_bot
 
 logger = logging.getLogger(__name__)
 

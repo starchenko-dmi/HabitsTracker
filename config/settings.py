@@ -1,21 +1,31 @@
-"""
-Настройки Django для проекта трекера привычек.
-"""
+import os
 
+# Для поддержки часовых поясов на Windows
+import sys
 from datetime import timedelta
 from pathlib import Path
 
-from decouple import Csv, config
+from dotenv import load_dotenv
 
-# Пути внутри проекта
+if sys.platform == "win32":
+    import tzdata  # noqa: F401
+
+# 🔑 Загружаем переменные из .env файла (ОБЯЗАТЕЛЬНО в самом начале!)
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
 
-# Быстрые настройки для разработки - не подходят для продакшена
-SECRET_KEY = config("SECRET_KEY")
+# 🔒 SECRET_KEY — обязательная проверка
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY не установлен в .env файле!")
 
-DEBUG = config("DEBUG", default=False, cast=bool)
+# 🐞 Режим отладки
+DEBUG = os.environ.get("DEBUG", "False").lower() in ["true", "1", "yes", "on"]
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1", cast=Csv())
+# 🌐 Разрешённые хосты
+ALLOWED_HOSTS = [
+    host.strip() for host in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if host.strip()
+]
 
 # Определение приложений
 INSTALLED_APPS = [
@@ -77,12 +87,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 # База данных
 DATABASES = {
     "default": {
-        "ENGINE": config("DB_ENGINE", default="django.db.backends.sqlite3"),
-        "NAME": config("DB_NAME", default=BASE_DIR / "db.sqlite3"),
-        "USER": config("DB_USER", default=""),
-        "PASSWORD": config("DB_PASSWORD", default=""),
-        "HOST": config("DB_HOST", default=""),
-        "PORT": config("DB_PORT", default=""),
+        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("DB_NAME", BASE_DIR / "db.sqlite3"),
+        "USER": os.environ.get("DB_USER", ""),
+        "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+        "HOST": os.environ.get("DB_HOST", ""),
+        "PORT": os.environ.get("DB_PORT", ""),
     }
 }
 
@@ -105,11 +115,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # Локализация
 LANGUAGE_CODE = "ru-ru"
 
-TIME_ZONE = config("TIME_ZONE", default="UTC")
-
+# ⏰ Часовой пояс (UTC+7 — Новосибирск)
+TIME_ZONE = os.environ.get("TIME_ZONE", "Asia/Novosibirsk")
+USE_TZ = True  # Обязательно True для корректной работы с часами
 USE_I18N = True
-
-USE_TZ = True
 
 # Статические файлы (CSS, JavaScript, изображения)
 STATIC_URL = "static/"
@@ -126,8 +135,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "users.User"
 
 # Настройки CORS
-CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", cast=Csv())
-
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+    if origin.strip()
+]
 CORS_ALLOW_CREDENTIALS = True
 
 # Настройки Django REST Framework
@@ -200,16 +212,17 @@ DJOSER = {
 }
 
 # Настройки Celery
-CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="redis://localhost:6379/0")
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default="redis://localhost:6379/0")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379/0")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
-CELERY_TIMEZONE = TIME_ZONE
+CELERY_TIMEZONE = TIME_ZONE  # Должно совпадать с TIME_ZONE Django
+CELERY_ENABLE_UTC = False  # Отключаем UTC для корректной работы с локальным временем
 
 # Настройки Telegram бота
-TELEGRAM_BOT_TOKEN = config("TELEGRAM_BOT_TOKEN", default="")
-TELEGRAM_BOT_NAME = config("TELEGRAM_BOT_NAME", default="")
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_BOT_NAME = os.environ.get("TELEGRAM_BOT_NAME", "")
 
 # Логирование
 LOGGING = {

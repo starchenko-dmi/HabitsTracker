@@ -5,7 +5,7 @@ from celery import shared_task
 from django.utils import timezone
 
 from habits.models import Habit
-from telegram_bot.bot import send_message
+from telegram_bot.utils import send_message
 
 logger = logging.getLogger(__name__)
 
