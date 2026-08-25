@@ -1,0 +1,5 @@
+[flake8]
+max-line-length = 119
+exclude = .git, __pycache__, venv, .ven
+per-file-ignores =
+    telegram_bot/bot.py:E402
