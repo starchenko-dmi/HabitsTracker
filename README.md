@@ -252,7 +252,7 @@ poetry run black .
 
 **Дмитрий Старченко**  
 📧 Starchenko.Dmitr@mail.ru  
- GitHub: [ваш-логин](https://github.com/starchenko-dmi/)
+ GitHub: (https://github.com/starchenko-dmi/)
 
 > *«Маленькие привычки создают большую жизнь»*
 
